@@ -1,0 +1,23 @@
+<div class="toast-container position-absolute bottom-0 end-0 p-3">
+  <div
+    class="toast bg-{{ toast.type }}-subtle"
+    *ngFor="let toast of toasts;"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    [ngClass]="{ show: true }"
+    style="opacity: 1; transition: opacity 0.5s ease-in-out"
+  >
+    <div class="toast-header bg-{{ toast.type }}">
+      <strong class="me-auto text-white">{{ toast.title }}</strong>
+      <p class="m-0 fw-semibold text-white">{{ toast.time | date: 'dd/MM/yyyy, HH:mm:ss' }}</p>
+      <button
+        type="button"
+        class="btn-close text-white bg-white"
+        (click)="removeToast(toast.id)"
+        aria-label="Close"
+      ></button>
+    </div>
+    <div class="toast-body">{{ toast.message }}</div>
+  </div>
+</div>

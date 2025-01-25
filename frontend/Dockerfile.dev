@@ -1,0 +1,23 @@
+# Etapa 1: Construção com Node.js (para desenvolvimento)
+FROM node:22.12.0-alpine AS development-stage
+
+# Definir diretório de trabalho
+WORKDIR /app
+
+# Copiar os arquivos de dependência do projeto
+COPY package*.json ./
+
+# Instalar dependências de desenvolvimento
+RUN npm install
+
+RUN npm install -g @angular/cli
+
+# Copiar todo o código do projeto
+COPY . .
+
+# Expor a porta 4200 para o servidor de desenvolvimento
+EXPOSE 4200
+
+# Rodar o servidor de desenvolvimento Angular com live-reload
+# CMD ["npm", "start"]
+CMD ["ng", "serve", "--host", "0.0.0.0"]

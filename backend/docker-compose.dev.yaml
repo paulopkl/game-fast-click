@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  backend:
+    restart: unless-stopped
+    container_name: game-api-dev
+    command: npm run start:dev # Executa o modo de desenvolvimento do NestJS
+    build:
+      context: .
+      dockerfile: Dockerfile.dev # Certifique-se de criar um Dockerfile de desenvolvimento
+    ports:
+      - "3000:3000" # Porta exposta da API
+    volumes:
+      - .:/usr/src/app # Monta o código local no container para hot-reload
+      - /usr/src/app/node_modules # Evita sobrescrever node_modules do container
+    environment:
+      NODE_ENV: development
+      API_PORT: 3000 # Porta configurada na aplicação

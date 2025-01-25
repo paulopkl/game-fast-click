@@ -1,0 +1,41 @@
+<div class="container">
+  <div class="row">
+    <div class="col-12 vh-100">
+      <div
+        class="d-flex flex-column align-items-stretch flex-shrink-0 bg-body-tertiary"
+      >
+        <a href="/" class="d-flex align-items-center flex-shrink-0 p-3 link-body-emphasis text-decoration-none border-bottom">
+          <svg class="bi pe-none me-2" width="30" height="24">
+            <use xlink:href="#bootstrap"></use>
+          </svg>
+          <span class="fs-5 fw-semibold">
+            Sala Disponíveis: {{ rooms.length }}
+          </span>
+        </a>
+        <div class="list-group list-group-flush border-bottom scrollarea">
+          @for (room of rooms; track room) {
+            <div
+              class="list-group-item list-group-item-action desactive py-3 lh-sm {{ room.gameStarted ? 'disabled bg-dark-subtle' : '' }}"
+              aria-current="true"
+            >
+              <div class="d-flex w-100 align-items-center justify-content-between">
+                <a (click)="joinRoom(room.id)" style="cursor: pointer;">
+                  <strong class="mb-1">{{ room.name }} ({{ room.id }})</strong>
+                </a>
+                <small>{{ room.players.length }} Jogadores</small>
+                <div class="d-flex align-items-stretch bg-light" >
+                  <button class="btn btn-warning active" (click)="clearRoom(room.id)">
+                    <i class="bi bi-trash pointer-event"></i> Limpar
+                  </button>
+                </div>
+              </div>
+              <div class="col-10 mb-1 small">
+                {{ room.name }} {{ room.gameStarted ? "Jogo já começou!" : "" }}
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

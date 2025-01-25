@@ -1,0 +1,208 @@
+<div class="container vh-100 d-flex flex-column">
+  <div class="row">
+    <div class="col-12">
+      <header class="py-3 border-bottom">
+        <div class="container d-flex flex-wrap justify-content-center">
+          <div
+            class="d-flex align-items-center mb-3 mb-lg-0 me-lg-auto link-body-emphasis text-decoration-none"
+          >
+            <button
+              type="button"
+              class="btn btn-link text-danger"
+              (click)="exitGame()"
+            >
+              <i class="bi bi-box-arrow-right"></i>
+              Sair
+            </button>
+            <span class="fs-4">
+              Seu tempo restante:
+              {{ convertMinutesToTime(getPlayerTime(playerId)) }}
+              <strong class="fs-4 text-danger">
+                (-{{ playerTimeRamaining(playerId) }})
+              </strong>
+            </span>
+          </div>
+          @if (
+            isYourTurn(playerId) && !room.gameStarted && room.players.length > 1
+          ) {
+            <button
+              (click)="resumeGame()"
+              class="btn btn-success rounded-pill px-3"
+              type="button"
+            >
+              Começar Jogo
+            </button>
+          }
+        </div>
+      </header>
+    </div>
+  </div>
+  <div class="row flex-grow-1">
+    <div class="col-4 p-0 border">
+      <div
+        class="d-flex flex-column align-items-stretch flex-shrink-0 bg-body-tertiary"
+      >
+        <a
+          href="/"
+          class="d-flex align-items-center flex-shrink-0 p-3 link-body-emphasis text-decoration-none border-bottom"
+        >
+          <svg class="bi pe-none me-2" width="30" height="24">
+            <use xlink:href="#bootstrap"></use>
+          </svg>
+          <span class="fs-5 fw-semibold">
+            Usuários: {{ room?.players?.length || 0 }}
+          </span>
+        </a>
+        <div class="list-group list-group-flush border-bottom scrollarea">
+          @if (room?.players) {
+            @for (player of room?.players; track player) {
+              <div
+                class="list-group-item list-group-item-action {{
+                  player.isPlaying ? 'active' : 'desactive'
+                }} py-3 lh-sm"
+                aria-current="true"
+              >
+                <div
+                  class="d-flex w-100 align-items-center justify-content-between"
+                >
+                  <strong class="mb-1">{{ player.name }}</strong>
+                  <small class="fw-bold">
+                    {{ convertMinutesToTime(player.timeLeft) }}
+                  </small>
+                </div>
+                <div class="col-10 mb-1 small">
+                  {{ player.isPlaying ? 'Jogando agora.' : 'Aguardando...' }}
+                </div>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    </div>
+    <div class="col-8 border d-flex flex-column justify-content-between">
+      <div class="flex-grow-1 d-flex flex-column justify-content-between py-4">
+        <ng-container *ngIf="room.gameFinished; else gameContent">
+          <div
+            class="d-flex justify-content-center align-items-center flex-grow-1"
+          >
+            <div>
+              <h1 class="display-4 fw-normal text-success">Você venceu!</h1>
+              <p class="fs-5 text-body-secondary">
+                Parabéns por vencer o jogo! 🎉🎉🎉🎉
+              </p>
+            </div>
+          </div>
+        </ng-container>
+        <ng-template #gameContent>
+          <ng-container *ngIf="isYourTurn(playerId); else notYourTurn">
+            <div class="flex-grow-1 d-flex flex-column justify-content-center">
+              <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+                <h1 class="display-4 fw-normal text-body-emphasis">Sua Vez!</h1>
+                <p class="fs-5 text-body-secondary">
+                  Seja rápido, não perca tempo, não se esqueça de escolher uma
+                  ação abaixo antes de finalizar sua jogada.
+                </p>
+              </div>
+              <div class="row row-cols-1 row-cols-md-2 mb-3 text-center">
+                <div class="col">
+                  <div class="card mb-4 rounded-3 shadow-sm border-success">
+                    <div
+                      class="card-header py-3 text-bg-success border-success"
+                    >
+                      <h4 class="my-0 fw-normal">Ganhar Tempo</h4>
+                    </div>
+                    <div class="card-body">
+                      <p class="my-2">
+                        Tome uma ação ganhando 5 segundos no seu tempo faltante!
+                      </p>
+                      <button
+                        (click)="earnTime(playerId)"
+                        class="btn btn-success btn-lg rounded-pill px-3"
+                        type="button"
+                        [disabled]="
+                          !room.gameStarted || playerAlreadyActed(playerId)
+                        "
+                      >
+                        Ganhar (+5s)
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="card mb-4 rounded-3 shadow-sm border-danger">
+                    <div class="card-header py-3 text-bg-danger border-danger">
+                      <h4 class="my-0 fw-normal">Retirar pontos</h4>
+                    </div>
+                    <div class="card-body">
+                      <p class="my-2">
+                        Tome uma ação retirando pontos de outros jogadores!
+                      </p>
+                      <div class="dropdown">
+                        <button
+                          class="btn btn-danger btn-lg dropdown-toggle"
+                          type="button"
+                          data-bs-toggle="dropdown"
+                          aria-expanded="false"
+                          [disabled]="
+                            !room.gameStarted || playerAlreadyActed(playerId)
+                          "
+                        >
+                          Retirar (-10s) de outro jogador
+                        </button>
+                        <ul class="dropdown-menu">
+                          <ng-container *ngIf="room?.players?.length || 0 > 1">
+                            <li>
+                              @for (player of room.players; track player.id) {
+                                @if (player.id != playerId) {
+                                  <button
+                                    class="dropdown-item"
+                                    (click)="removeAnotherPlayerTime(player.id)"
+                                  >
+                                    {{ player.name }}
+                                  </button>
+                                }
+                              }
+                            </li>
+                          </ng-container>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row text-center">
+              @if (room.gameStarted) {
+                <div class="col">
+                  <button
+                    class="btn btn-lg btn-warning d-grid fs-1 icon-link icon-link-hover border-warning bg-warning"
+                    (click)="endTurn()"
+                  >
+                    Finalizar turno
+                  </button>
+                </div>
+              }
+            </div>
+          </ng-container>
+          <ng-template #notYourTurn>
+            <div
+              class="d-flex justify-content-center align-items-center flex-grow-1"
+            >
+              <div>
+                <h1 class="display-4 fw-normal text-body-emphasis">
+                  Aguardando sua vez
+                </h1>
+                <p class="fs-5 text-body-secondary">
+                  O jogador Player 1 está jogando agora, espere sua vez!
+                </p>
+              </div>
+            </div>
+          </ng-template>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Include the ToastStackComponent in your GameComponent -->
+<app-toast-stack></app-toast-stack>

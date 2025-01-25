@@ -1,0 +1,12 @@
+#head {
+  height: 50px;
+}
+
+#conversation {
+  overflow: hidden;
+  height: calc(100vh - 120px);
+}
+
+#reply {
+  height: 20px;
+}
